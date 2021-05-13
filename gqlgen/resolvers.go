@@ -4,6 +4,8 @@ package gqlgen
 
 import (
 	"context"
+	"fmt"
+	// "strconv"
 
 	"github.com/bangarangler/go-gqlgen-sqlc-example/pg"
 )
@@ -12,24 +14,32 @@ type Resolver struct {
 	Repository pg.Repository
 }
 
-// func (r *agentResolver) Authors(ctx context.Context, obj *pg.Agent) ([]pg.Author, error) {
-// 	panic("not implemented")
-// }
-
 func (r *authorResolver) Website(ctx context.Context, obj *pg.Author) (*string, error) {
-	panic("not implemented")
+	var w string
+	if obj.Website.Valid {
+		w = obj.Website.String
+		return &w, nil
+	}
+	return nil, nil
 }
 
+//TODO: possible N+1 query issue to be resolved with dataloader
+// many authors along with agents
 func (r *authorResolver) Agent(ctx context.Context, obj *pg.Author) (*pg.Agent, error) {
-	panic("not implemented")
+	agent, err := r.Repository.GetAgent(ctx, obj.AgentID)
+	if err != nil {
+		return nil, err
+	}
+	return &agent, nil
 }
 
+// TODO: n+1 query issue to be fixed with dataloader
 func (r *authorResolver) Books(ctx context.Context, obj *pg.Author) ([]pg.Book, error) {
-	panic("not implemented")
+	return r.Repository.ListBooksByAuthorID(ctx, obj.ID)
 }
 
 func (r *bookResolver) Authors(ctx context.Context, obj *pg.Book) ([]pg.Author, error) {
-	panic("not implemented")
+	return r.Repository.ListAuthorsByBookID(ctx, obj.ID)
 }
 
 func (r *mutationResolver) CreateAgent(ctx context.Context, data AgentInput) (*pg.Agent, error) {
@@ -52,7 +62,19 @@ func (r *mutationResolver) DeleteAgent(ctx context.Context, id string) (*pg.Agen
 }
 
 func (r *mutationResolver) CreateAuthor(ctx context.Context, data AuthorInput) (*pg.Author, error) {
-	panic("not implemented")
+	// var convert data.AgentID
+	// i, _ := strconv.ParseInt(convert, 10, 64)
+	fmt.Printf("val: %v; type %T\n", data.AgentID)
+	author, err := r.Repository.CreateAuthor(ctx, pg.CreateAuthorParams{
+		Name:    data.Name,
+		Website: pg.StringPtrToNullString(data.Website),
+		// AgentID: data.AgentID,
+		// AgentID: i,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &author, nil
 }
 
 func (r *mutationResolver) UpdateAuthor(ctx context.Context, id string, data AuthorInput) (*pg.Author, error) {
@@ -64,7 +86,12 @@ func (r *mutationResolver) DeleteAuthor(ctx context.Context, id string) (*pg.Aut
 }
 
 func (r *mutationResolver) CreateBook(ctx context.Context, data BookInput) (*pg.Book, error) {
-	panic("not implemented")
+	return r.Repository.CreateBook(ctx, pg.CreateBookParams{
+		Title:       data.Title,
+		Description: data.Description,
+		Cover:       data.Cover,
+		// }, data.AuthorIDs)
+	}, []int64{1})
 }
 
 func (r *mutationResolver) UpdateBook(ctx context.Context, id string, data BookInput) (*pg.Book, error) {
@@ -75,8 +102,13 @@ func (r *mutationResolver) DeleteBook(ctx context.Context, id string) (*pg.Book,
 	panic("not implemented")
 }
 
-func (r *queryResolver) Agent(ctx context.Context, id string) (*pg.Agent, error) {
-	panic("not implemented")
+// func (r *queryResolver) Agent(ctx context.Context, id string) (*pg.Agent, error) {
+func (r *queryResolver) Agent(ctx context.Context, id int64) (*pg.Agent, error) {
+	agent, err := r.Repository.GetAgent(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return &agent, nil
 }
 
 func (r *queryResolver) Agents(ctx context.Context) ([]pg.Agent, error) {
