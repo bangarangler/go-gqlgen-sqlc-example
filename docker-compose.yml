@@ -1,7 +1,17 @@
 version: '3'
 services:
+  # database-gen:
+  #   image: "kjconroy/sqlc"
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - go-gqlgen-sqlc-example:/var/lib/postgresql/data/
   database:
-    image: "kjconroy/sqlc"
+    image: "postgres"
+    # depends_on:
+    #  - database-gen
     env_file:
       - .env
     ports:

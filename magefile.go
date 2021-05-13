@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 
 	"github.com/magefile/mage/mg" // mg contains helpful utility functions, like Deps
 	"github.com/magefile/mage/sh"
@@ -17,13 +18,31 @@ import (
 
 func SQLCGen() error {
 	fmt.Println("sqlc generating queries...")
-	return sh.Run("docker", "run", "--rm", "-v", "/home/jonathan/Desktop/go-gqlgen-sqlc-example:/src", "-w", "/src", "kjconroy/sqlc", "generate")
+	system := runtime.GOOS
+	switch system {
+	case "windows":
+		println("No Thank You, Switch to Linux ; )")
+	case "darwin":
+		println("Running on mac")
+		return sh.Run("docker", "run", "--rm", "-v", "/Users/jonathanpalacio/Desktop/go-gqlgen-sqlc-example:/src", "-w", "/src", "kjconroy/sqlc", "generate")
+	case "linux":
+		println("Linux ; )")
+		return sh.Run("docker", "run", "--rm", "-v", "/home/jonathan/Desktop/go-gqlgen-sqlc-example:/src", "-w", "/src", "kjconroy/sqlc", "generate")
+	}
+	return nil
 }
 
 func hackPermissions() error {
 	fmt.Println("sqlc generating queries...")
+	// TODO: worked on mac no problem. only on linux it locked me out and i needed
+	// this
 	// TODO: add sudo chmod o+w ./pg/*
 	return nil
+}
+
+func Server() error {
+	fmt.Println("running server ...")
+	return sh.Run("go", "run", "cmd/go-gqlgen-sqlc-example/main.go")
 }
 
 // A build step that requires additional params, or platform specific steps for example
