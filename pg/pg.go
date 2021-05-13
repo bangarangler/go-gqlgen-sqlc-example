@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
 
 	_ "github.com/lib/pq"
 )
@@ -56,7 +57,7 @@ func (r *repoSvc) withTx(ctx context.Context, txFn func(*Queries) error) error {
 	return err
 }
 
-func (r *repoSvc) CreateBook(ctx context.Context, bookArg CreateBookParams, authorIDs []int64) (*Book, error) {
+func (r *repoSvc) CreateBook(ctx context.Context, bookArg CreateBookParams, authorIDs []string) (*Book, error) {
 	book := new(Book)
 	err := r.withTx(ctx, func(q *Queries) error {
 		res, err := q.CreateBook(ctx, bookArg)
@@ -64,9 +65,11 @@ func (r *repoSvc) CreateBook(ctx context.Context, bookArg CreateBookParams, auth
 			return err
 		}
 		for _, authorID := range authorIDs {
+			convert, _ := strconv.ParseInt(authorID, 10, 64)
 			if err := q.SetBookAuthor(ctx, SetBookAuthorParams{
-				BookID:   res.ID,
-				AuthorID: authorID,
+				BookID: res.ID,
+				// AuthorID: authorID,
+				AuthorID: convert,
 			}); err != nil {
 				return err
 			}
@@ -77,7 +80,7 @@ func (r *repoSvc) CreateBook(ctx context.Context, bookArg CreateBookParams, auth
 	return book, err
 }
 
-func (r *repoSvc) UpdateBook(ctx context.Context, bookArg UpdateBookParams, authorIDs []int64) (*Book, error) {
+func (r *repoSvc) UpdateBook(ctx context.Context, bookArg UpdateBookParams, authorIDs []string) (*Book, error) {
 	book := new(Book)
 	err := r.withTx(ctx, func(q *Queries) error {
 		res, err := q.UpdateBook(ctx, bookArg)
@@ -88,9 +91,11 @@ func (r *repoSvc) UpdateBook(ctx context.Context, bookArg UpdateBookParams, auth
 			return err
 		}
 		for _, authorID := range authorIDs {
+			convert, _ := strconv.ParseInt(authorID, 10, 64)
 			if err := q.SetBookAuthor(ctx, SetBookAuthorParams{
-				BookID:   res.ID,
-				AuthorID: authorID,
+				BookID: res.ID,
+				// AuthorID: authorID,
+				AuthorID: convert,
 			}); err != nil {
 				return err
 			}
