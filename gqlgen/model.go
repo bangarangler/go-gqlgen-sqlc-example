@@ -10,12 +10,12 @@ type AgentInput struct {
 type AuthorInput struct {
 	Name    string  `json:"name"`
 	Website *string `json:"website"`
-	AgentID string  `json:"agent_id"`
+	AgentID int64   `json:"agent_id"`
 }
 
 type BookInput struct {
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Cover       string   `json:"cover"`
-	AuthorIDs   []string `json:"authorIDs"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Cover       string  `json:"cover"`
+	AuthorIDs   []int64 `json:"authorIDs"`
 }

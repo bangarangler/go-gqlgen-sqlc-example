@@ -73,20 +73,20 @@ type ComplexityRoot struct {
 		CreateAgent  func(childComplexity int, data AgentInput) int
 		CreateAuthor func(childComplexity int, data AuthorInput) int
 		CreateBook   func(childComplexity int, data BookInput) int
-		DeleteAgent  func(childComplexity int, id string) int
-		DeleteAuthor func(childComplexity int, id string) int
-		DeleteBook   func(childComplexity int, id string) int
-		UpdateAgent  func(childComplexity int, id string, data AgentInput) int
-		UpdateAuthor func(childComplexity int, id string, data AuthorInput) int
-		UpdateBook   func(childComplexity int, id string, data BookInput) int
+		DeleteAgent  func(childComplexity int, id int64) int
+		DeleteAuthor func(childComplexity int, id int64) int
+		DeleteBook   func(childComplexity int, id int64) int
+		UpdateAgent  func(childComplexity int, id int64, data AgentInput) int
+		UpdateAuthor func(childComplexity int, id int64, data AuthorInput) int
+		UpdateBook   func(childComplexity int, id int64, data BookInput) int
 	}
 
 	Query struct {
-		Agent   func(childComplexity int, id string) int
+		Agent   func(childComplexity int, id int64) int
 		Agents  func(childComplexity int) int
-		Author  func(childComplexity int, id string) int
+		Author  func(childComplexity int, id int64) int
 		Authors func(childComplexity int) int
-		Book    func(childComplexity int, id string) int
+		Book    func(childComplexity int, id int64) int
 		Books   func(childComplexity int) int
 	}
 }
@@ -104,21 +104,21 @@ type BookResolver interface {
 }
 type MutationResolver interface {
 	CreateAgent(ctx context.Context, data AgentInput) (*pg.Agent, error)
-	UpdateAgent(ctx context.Context, id string, data AgentInput) (*pg.Agent, error)
-	DeleteAgent(ctx context.Context, id string) (*pg.Agent, error)
+	UpdateAgent(ctx context.Context, id int64, data AgentInput) (*pg.Agent, error)
+	DeleteAgent(ctx context.Context, id int64) (*pg.Agent, error)
 	CreateAuthor(ctx context.Context, data AuthorInput) (*pg.Author, error)
-	UpdateAuthor(ctx context.Context, id string, data AuthorInput) (*pg.Author, error)
-	DeleteAuthor(ctx context.Context, id string) (*pg.Author, error)
+	UpdateAuthor(ctx context.Context, id int64, data AuthorInput) (*pg.Author, error)
+	DeleteAuthor(ctx context.Context, id int64) (*pg.Author, error)
 	CreateBook(ctx context.Context, data BookInput) (*pg.Book, error)
-	UpdateBook(ctx context.Context, id string, data BookInput) (*pg.Book, error)
-	DeleteBook(ctx context.Context, id string) (*pg.Book, error)
+	UpdateBook(ctx context.Context, id int64, data BookInput) (*pg.Book, error)
+	DeleteBook(ctx context.Context, id int64) (*pg.Book, error)
 }
 type QueryResolver interface {
-	Agent(ctx context.Context, id string) (*pg.Agent, error)
+	Agent(ctx context.Context, id int64) (*pg.Agent, error)
 	Agents(ctx context.Context) ([]pg.Agent, error)
-	Author(ctx context.Context, id string) (*pg.Author, error)
+	Author(ctx context.Context, id int64) (*pg.Author, error)
 	Authors(ctx context.Context) ([]pg.Author, error)
-	Book(ctx context.Context, id string) (*pg.Book, error)
+	Book(ctx context.Context, id int64) (*pg.Book, error)
 	Books(ctx context.Context) ([]pg.Book, error)
 }
 
@@ -281,7 +281,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteAgent(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.DeleteAgent(childComplexity, args["id"].(int64)), true
 
 	case "Mutation.deleteAuthor":
 		if e.complexity.Mutation.DeleteAuthor == nil {
@@ -293,7 +293,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteAuthor(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.DeleteAuthor(childComplexity, args["id"].(int64)), true
 
 	case "Mutation.deleteBook":
 		if e.complexity.Mutation.DeleteBook == nil {
@@ -305,7 +305,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteBook(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.DeleteBook(childComplexity, args["id"].(int64)), true
 
 	case "Mutation.updateAgent":
 		if e.complexity.Mutation.UpdateAgent == nil {
@@ -317,7 +317,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateAgent(childComplexity, args["id"].(string), args["data"].(AgentInput)), true
+		return e.complexity.Mutation.UpdateAgent(childComplexity, args["id"].(int64), args["data"].(AgentInput)), true
 
 	case "Mutation.updateAuthor":
 		if e.complexity.Mutation.UpdateAuthor == nil {
@@ -329,7 +329,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateAuthor(childComplexity, args["id"].(string), args["data"].(AuthorInput)), true
+		return e.complexity.Mutation.UpdateAuthor(childComplexity, args["id"].(int64), args["data"].(AuthorInput)), true
 
 	case "Mutation.updateBook":
 		if e.complexity.Mutation.UpdateBook == nil {
@@ -341,7 +341,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateBook(childComplexity, args["id"].(string), args["data"].(BookInput)), true
+		return e.complexity.Mutation.UpdateBook(childComplexity, args["id"].(int64), args["data"].(BookInput)), true
 
 	case "Query.agent":
 		if e.complexity.Query.Agent == nil {
@@ -353,7 +353,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Agent(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.Agent(childComplexity, args["id"].(int64)), true
 
 	case "Query.agents":
 		if e.complexity.Query.Agents == nil {
@@ -372,7 +372,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Author(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.Author(childComplexity, args["id"].(int64)), true
 
 	case "Query.authors":
 		if e.complexity.Query.Authors == nil {
@@ -391,7 +391,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Book(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.Book(childComplexity, args["id"].(int64)), true
 
 	case "Query.books":
 		if e.complexity.Query.Books == nil {
@@ -581,10 +581,10 @@ func (ec *executionContext) field_Mutation_createBook_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_deleteAgent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 int64
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -596,10 +596,10 @@ func (ec *executionContext) field_Mutation_deleteAgent_args(ctx context.Context,
 func (ec *executionContext) field_Mutation_deleteAuthor_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 int64
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -611,10 +611,10 @@ func (ec *executionContext) field_Mutation_deleteAuthor_args(ctx context.Context
 func (ec *executionContext) field_Mutation_deleteBook_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 int64
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -626,10 +626,10 @@ func (ec *executionContext) field_Mutation_deleteBook_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_updateAgent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 int64
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -650,10 +650,10 @@ func (ec *executionContext) field_Mutation_updateAgent_args(ctx context.Context,
 func (ec *executionContext) field_Mutation_updateAuthor_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 int64
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -674,10 +674,10 @@ func (ec *executionContext) field_Mutation_updateAuthor_args(ctx context.Context
 func (ec *executionContext) field_Mutation_updateBook_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 int64
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -713,10 +713,10 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_agent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 int64
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -728,10 +728,10 @@ func (ec *executionContext) field_Query_agent_args(ctx context.Context, rawArgs 
 func (ec *executionContext) field_Query_author_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 int64
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -743,10 +743,10 @@ func (ec *executionContext) field_Query_author_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_book_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 int64
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1347,7 +1347,7 @@ func (ec *executionContext) _Mutation_updateAgent(ctx context.Context, field gra
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateAgent(rctx, args["id"].(string), args["data"].(AgentInput))
+		return ec.resolvers.Mutation().UpdateAgent(rctx, args["id"].(int64), args["data"].(AgentInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1389,7 +1389,7 @@ func (ec *executionContext) _Mutation_deleteAgent(ctx context.Context, field gra
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteAgent(rctx, args["id"].(string))
+		return ec.resolvers.Mutation().DeleteAgent(rctx, args["id"].(int64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1473,7 +1473,7 @@ func (ec *executionContext) _Mutation_updateAuthor(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateAuthor(rctx, args["id"].(string), args["data"].(AuthorInput))
+		return ec.resolvers.Mutation().UpdateAuthor(rctx, args["id"].(int64), args["data"].(AuthorInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1515,7 +1515,7 @@ func (ec *executionContext) _Mutation_deleteAuthor(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteAuthor(rctx, args["id"].(string))
+		return ec.resolvers.Mutation().DeleteAuthor(rctx, args["id"].(int64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1599,7 +1599,7 @@ func (ec *executionContext) _Mutation_updateBook(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateBook(rctx, args["id"].(string), args["data"].(BookInput))
+		return ec.resolvers.Mutation().UpdateBook(rctx, args["id"].(int64), args["data"].(BookInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1641,7 +1641,7 @@ func (ec *executionContext) _Mutation_deleteBook(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteBook(rctx, args["id"].(string))
+		return ec.resolvers.Mutation().DeleteBook(rctx, args["id"].(int64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1683,7 +1683,7 @@ func (ec *executionContext) _Query_agent(ctx context.Context, field graphql.Coll
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Agent(rctx, args["id"].(string))
+		return ec.resolvers.Query().Agent(rctx, args["id"].(int64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1757,7 +1757,7 @@ func (ec *executionContext) _Query_author(ctx context.Context, field graphql.Col
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Author(rctx, args["id"].(string))
+		return ec.resolvers.Query().Author(rctx, args["id"].(int64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1831,7 +1831,7 @@ func (ec *executionContext) _Query_book(ctx context.Context, field graphql.Colle
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Book(rctx, args["id"].(string))
+		return ec.resolvers.Query().Book(rctx, args["id"].(int64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3092,7 +3092,7 @@ func (ec *executionContext) unmarshalInputAuthorInput(ctx context.Context, obj i
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("agent_id"))
-			it.AgentID, err = ec.unmarshalNID2string(ctx, v)
+			it.AgentID, err = ec.unmarshalNID2int64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3136,7 +3136,7 @@ func (ec *executionContext) unmarshalInputBookInput(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("authorIDs"))
-			it.AuthorIDs, err = ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			it.AuthorIDs, err = ec.unmarshalNID2ᚕint64ᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3951,22 +3951,7 @@ func (ec *executionContext) marshalNID2int64(ctx context.Context, sel ast.Select
 	return res
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+func (ec *executionContext) unmarshalNID2ᚕint64ᚄ(ctx context.Context, v interface{}) ([]int64, error) {
 	var vSlice []interface{}
 	if v != nil {
 		if tmp1, ok := v.([]interface{}); ok {
@@ -3976,10 +3961,10 @@ func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v int
 		}
 	}
 	var err error
-	res := make([]string, len(vSlice))
+	res := make([]int64, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNID2int64(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -3987,10 +3972,10 @@ func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v int
 	return res, nil
 }
 
-func (ec *executionContext) marshalNID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+func (ec *executionContext) marshalNID2ᚕint64ᚄ(ctx context.Context, sel ast.SelectionSet, v []int64) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	for i := range v {
-		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+		ret[i] = ec.marshalNID2int64(ctx, sel, v[i])
 	}
 
 	return ret

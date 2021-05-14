@@ -32,6 +32,11 @@ func SQLCGen() error {
 	return nil
 }
 
+func GQLGen() error {
+	fmt.Println("gql generating queries...")
+	return sh.Run("go", "run", "gqlgen", "generate")
+}
+
 func hackPermissions() error {
 	fmt.Println("sqlc generating queries...")
 	// TODO: worked on mac no problem. only on linux it locked me out and i needed
