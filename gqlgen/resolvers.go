@@ -6,12 +6,14 @@ package gqlgen
 import (
 	"context"
 
+	"github.com/bangarangler/go-gqlgen-sqlc-example/dataloaders"
 	"github.com/bangarangler/go-gqlgen-sqlc-example/pg"
 )
 
 // Resolver connects individual resolvers with the datalayer.
 type Resolver struct {
-	Repository pg.Repository
+	Repository  pg.Repository
+	DataLoaders dataloaders.Retriever
 }
 
 // Agent returns an implementation of the AgentResolver interface.
@@ -42,6 +44,7 @@ func (r *Resolver) Query() QueryResolver {
 type agentResolver struct{ *Resolver }
 
 func (r *agentResolver) Authors(ctx context.Context, obj *pg.Agent) ([]pg.Author, error) {
+	// return r.DataLoaders.Retrieve(ctx).AuthorsByAgentID.Load(obj.ID)
 	return r.Repository.ListAuthorsByAgentID(ctx, obj.ID)
 }
 
@@ -57,11 +60,14 @@ func (r *authorResolver) Website(ctx context.Context, obj *pg.Author) (*string, 
 }
 
 func (r *authorResolver) Agent(ctx context.Context, obj *pg.Author) (*pg.Agent, error) {
-	agent, err := r.Repository.GetAgent(ctx, obj.AgentID)
-	if err != nil {
-		return nil, err
-	}
-	return &agent, nil
+	// fixes N+1 problem by using dataloader
+	return r.DataLoaders.Retrieve(ctx).AgentByAuthorID.Load(obj.ID)
+	// Old implementation with N+1 problem
+	// agent, err := r.Repository.GetAgent(ctx, obj.AgentID)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return &agent, nil
 }
 
 func (r *authorResolver) Books(ctx context.Context, obj *pg.Author) ([]pg.Book, error) {

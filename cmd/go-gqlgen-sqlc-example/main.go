@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/bangarangler/go-gqlgen-sqlc-example/dataloaders"
 	"github.com/bangarangler/go-gqlgen-sqlc-example/gqlgen"
 	"github.com/bangarangler/go-gqlgen-sqlc-example/pg"
 )
@@ -19,10 +20,15 @@ func main() {
 	// initialize the repository
 	repo := pg.NewRepository(db)
 
+	// initialize the dataloaders
+	dl := dataloaders.NewRetriever()
+
 	// configure the server
 	mux := http.NewServeMux()
 	mux.Handle("/", gqlgen.NewPlaygroundHandler("/query"))
-	mux.Handle("/query", gqlgen.NewHandler(repo))
+	dlMiddleware := dataloaders.Middleware(repo)     // <- initialize the middleware
+	queryHandler := gqlgen.NewHandler(repo, dl)      // <- use dataloader.Retriever
+	mux.Handle("/query", dlMiddleware(queryHandler)) // <- use dataloaders.Middleware
 
 	// run the server
 	port := ":8080"

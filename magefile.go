@@ -37,6 +37,12 @@ func GQLGen() error {
 	return sh.Run("go", "run", "gqlgen", "generate")
 }
 
+func GenDataloaders() error {
+	fmt.Println("generating dataloaders ...")
+	return sh.Run("go", "generate", "./dataloaders/...")
+	// return sh.Run("go", "run", "github.com/vektah/dataloaden", "./dataloaders/...")
+}
+
 func hackPermissions() error {
 	fmt.Println("sqlc generating queries...")
 	// TODO: worked on mac no problem. only on linux it locked me out and i needed

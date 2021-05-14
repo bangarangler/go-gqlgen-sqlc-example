@@ -15,6 +15,7 @@ type Repository interface {
 	GetAgent(ctx context.Context, id int64) (Agent, error)
 	ListAgents(ctx context.Context) ([]Agent, error)
 	UpdateAgent(ctx context.Context, arg UpdateAgentParams) (Agent, error)
+	ListAgentsByAuthorIDs(ctx context.Context, authorIDs []int64) ([]ListAgentsByAuthorIDsRow, error)
 
 	// author queries
 	CreateAuthor(ctx context.Context, arg CreateAuthorParams) (Author, error)
@@ -23,6 +24,7 @@ type Repository interface {
 	ListAuthors(ctx context.Context) ([]Author, error)
 	UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) (Author, error)
 	ListAuthorsByAgentID(ctx context.Context, agentID int64) ([]Author, error)
+	// ListAuthorsByAgentIDs(ctx context.Context, agentIDs []int64) ([]Author, error)
 	ListAuthorsByBookID(ctx context.Context, bookID int64) ([]Author, error)
 
 	// book queries

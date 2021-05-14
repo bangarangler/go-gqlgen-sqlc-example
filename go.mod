@@ -10,6 +10,7 @@ require (
 	github.com/magefile/mage v1.11.0
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
 	github.com/stretchr/testify v1.5.1 // indirect
+	github.com/vektah/dataloaden v0.2.1-0.20190515034641-a19b9a6e7c9e
 	github.com/vektah/gqlparser/v2 v2.1.0
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
