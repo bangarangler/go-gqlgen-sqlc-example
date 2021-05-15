@@ -44,8 +44,10 @@ func (r *Resolver) Query() QueryResolver {
 type agentResolver struct{ *Resolver }
 
 func (r *agentResolver) Authors(ctx context.Context, obj *pg.Agent) ([]pg.Author, error) {
-	// return r.DataLoaders.Retrieve(ctx).AuthorsByAgentID.Load(obj.ID)
-	return r.Repository.ListAuthorsByAgentID(ctx, obj.ID)
+	// dataloader to handle N+1 query issue
+	return r.DataLoaders.Retrieve(ctx).AuthorsByAgentID.Load(obj.ID)
+	// single use suffered from n+1 query issue
+	// return r.Repository.ListAuthorsByAgentID(ctx, obj.ID)
 }
 
 type authorResolver struct{ *Resolver }
@@ -71,13 +73,18 @@ func (r *authorResolver) Agent(ctx context.Context, obj *pg.Author) (*pg.Agent, 
 }
 
 func (r *authorResolver) Books(ctx context.Context, obj *pg.Author) ([]pg.Book, error) {
-	return r.Repository.ListBooksByAuthorID(ctx, obj.ID)
+	// suffered from N+1 query problem
+	// return r.Repository.ListBooksByAuthorID(ctx, obj.ID)
+	// dataloader fix for N+1 query problem
+	return r.DataLoaders.Retrieve(ctx).BooksByAuthorID.Load(obj.ID)
 }
 
 type bookResolver struct{ *Resolver }
 
 func (r *bookResolver) Authors(ctx context.Context, obj *pg.Book) ([]pg.Author, error) {
-	return r.Repository.ListAuthorsByBookID(ctx, obj.ID)
+	// dataloader to fix N+1 query problem
+	return r.DataLoaders.Retrieve(ctx).AuthorsByBookID.Load(obj.ID)
+	// return r.Repository.ListAuthorsByBookID(ctx, obj.ID)
 }
 
 type mutationResolver struct{ *Resolver }

@@ -78,22 +78,30 @@ VALUES ($1, $2);
 DELETE FROM book_authors
 WHERE book_id = $1;
 
--- name: ListAuthorsByAgentID :many
-SELECT authors.* FROM authors, agents
-WHERE agents.id = authors.agent_id AND authors.agent_id = $1;
+-- -- name: ListAuthorsByAgentID :many
+-- SELECT authors.* FROM authors, agents
+-- WHERE agents.id = authors.agent_id AND authors.agent_id = $1;
 
 -- name: ListBooksByAuthorID :many
 SELECT books.* FROM books, book_authors
 WHERE books.id = book_authors.book_id AND book_authors.author_id = $1;
 
--- name: ListAuthorsByBookID :many
-SELECT authors.* FROM authors, book_authors
-WHERE authors.id = book_authors.author_id AND book_authors.book_id = $1;
+-- -- name: ListAuthorsByBookID :many
+-- SELECT authors.* FROM authors, book_authors
+-- WHERE authors.id = book_authors.author_id AND book_authors.book_id = $1;
 
 -- name: ListAgentsByAuthorIDs :many
 SELECT agents.*, authors.id AS author_id FROM agents, authors
 WHERE agents.id = authors.agent_id AND authors.id = ANY($1::bigint[]);
 
--- -- name: ListAuthorsByAgentIDs :many
--- SELECT authors.* FROM authors, agents
--- WHERE authors.agent_id = agents.id AND agents.id = ANY($1::bigint[]);
+-- name: ListAuthorsByAgentIDs :many
+SELECT authors.* FROM authors, agents
+WHERE authors.agent_id = agents.id AND agents.id = ANY($1::bigint[]);
+
+-- name: ListAuthorsByBookIDs :many
+SELECT authors.*, book_authors.book_id FROM authors, book_authors
+WHERE book_authors.author_id = authors.id AND book_authors.book_id = ANY($1::bigint[]);
+
+-- name: ListBooksByAuthorIDs :many
+SELECT books.*, book_authors.author_id FROM books, book_authors
+WHERE book_authors.book_id = books.id AND book_authors.author_id = ANY($1::bigint[]);
